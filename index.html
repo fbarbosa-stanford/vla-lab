@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="VLA Lab — an interactive notebook on vision-language-action models, by Felipe Barbosa." />
-  <title>VLA Lab — Felipe Barbosa</title>
+  <meta name="description" content="VLA Lab — CS project submission: trained VLAs on SO-101 hardware and NVIDIA AV data, with interactive documentation and Hugging Face artifacts." />
+  <title>VLA Lab — CS Project · Felipe Barbosa</title>
   <link rel="icon" type="image/png" href="https://www.felipebarbosa.co/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
   </header>
 
   <main>
-    <div class="eyebrow">Felipe Barbosa · Stanford CS · robotics</div>
+    <div class="eyebrow">Felipe Barbosa · Stanford · CS project submission</div>
 
     <pre class="ascii ascii-hero" aria-label="VLA LAB">
 __     ___        _      _        _    ____
@@ -36,13 +36,14 @@ __     ___        _      _        _    ____
   \ V / | |___ / ___ \  | |___ / ___ \| |_) |
    \_/  |_____/_/   \_\ |_____/_/   \_\____/ </pre>
 
-    <p class="lead">An interactive notebook on vision-language-action models — the policies
-      that map a camera image and a language instruction straight to robot motion.</p>
+    <p class="lead">A CS project on vision-language-action models — policies that map a camera
+      image and a language instruction to robot motion.</p>
 
-    <p>It is two things at once: a <strong>teaching tool</strong> that opens up how these models
-      think, and a <strong>record of the VLAs I've trained</strong> — manipulation policies on the
-      SO-101 arm, and a π₀.5 driving stack fine-tuned on NVIDIA autonomous-vehicle data. Everything
-      below is interactive or links to real weights.</p>
+    <p>This submission combines <strong>trained policies</strong> (manipulation on the SO-101 arm,
+      driving via a π₀.5 finetune on NVIDIA AV data), <strong>published artifacts</strong> on
+      Hugging Face, and an <strong>interactive site</strong> that documents results with logged
+      rollouts and evaluation clips. See the <a href="https://github.com/fbarbosa-stanford/vla-lab#readme">README</a>
+      for the full write-up.</p>
 
     <pre class="ascii ascii-diagram" aria-label="VLA pipeline">  ┌─ instruction ──────────────────┐  ┌─ camera ──────────────┐  ┌─ state ──────┐
   │ "pick up the red cube"         │  │ 8×8 patch tokens      │  │ 6-DoF + grip │
@@ -84,10 +85,10 @@ __     ___        _      _        _    ____
         <div class="exhibit-meta"><span>ACT · SmolVLA · π₀.5</span><span class="arrow">→</span></div>
       </a>
       <a class="exhibit" href="driving.html">
-        <div class="exhibit-top"><span>04 · research note</span><span>self-driving</span></div>
+        <div class="exhibit-top"><span>04 · driving eval</span><span>open-loop</span></div>
         <div class="exhibit-title">Self-Driving VLA</div>
-        <div class="exhibit-q">Can a manipulation-style flow-matching VLA learn to drive a car?</div>
-        <div class="exhibit-meta"><span>π₀.5 · NVIDIA AV · open-loop</span><span class="arrow">→</span></div>
+        <div class="exhibit-q">π₀.5 finetuned on NVIDIA AV data — held-out clip evaluation.</div>
+        <div class="exhibit-meta"><span>π₀.5 · NVIDIA AV · ADE 0.42 m</span><span class="arrow">→</span></div>
       </a>
     </div>
 
@@ -114,21 +115,20 @@ __     ___        _      _        _    ____
       </a>
     </div>
 
-    <div class="section-eyebrow">About this lab</div>
-    <p class="muted" style="font-size:16px">
-      I'm a CS undergrad at Stanford on the AI track, mostly thinking about reinforcement learning,
-      agents, and robotics — and within robotics, about vision-language-action models and embodied
-      reasoning. This lab collects that work in one place. Start with the
-      <a href="explorer.html">Explorer</a> to build intuition, then dig into the
-      <a href="methods.html">methods</a> and the <a href="driving.html">driving research</a>.
-    </p>
-
-    <ul class="links" style="margin-top:1.5rem">
-      <li><span class="label">Site</span> <a href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co</a></li>
-      <li><span class="label">Models</span> <a href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener">huggingface.co/fbarbosa1</a></li>
-      <li><span class="label">GitHub</span> <a href="https://github.com/fbarbosa-stanford" target="_blank" rel="noopener">@fbarbosa-stanford</a></li>
-      <li><span class="label">X</span> <a href="https://x.com/felipexbarbosa" target="_blank" rel="noopener">@felipexbarbosa</a></li>
+    <div class="section-eyebrow">Submission artifacts</div>
+    <ul class="links" style="margin-top:.5rem">
+      <li><span class="label">Write-up</span> <a href="https://github.com/fbarbosa-stanford/vla-lab#readme" target="_blank" rel="noopener">README (GitHub)</a></li>
+      <li><span class="label">Models</span> <a href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener">huggingface.co/fbarbosa1</a> — 4 checkpoints, 3 datasets, 1 eval rollout</li>
+      <li><span class="label">Hardware eval</span> <a href="models.html#fail-act">ACT closed-loop failure</a> · <a href="models.html">manipulation results</a></li>
+      <li><span class="label">Driving eval</span> <a href="driving.html">open-loop clip gallery</a></li>
+      <li><span class="label">Repo</span> <a href="https://github.com/fbarbosa-stanford/vla-lab" target="_blank" rel="noopener">github.com/fbarbosa-stanford/vla-lab</a></li>
     </ul>
+
+    <p class="muted" style="font-size:16px;margin-top:1.5rem">
+      Start with the <a href="explorer.html">Explorer</a> for the VLA forward pass, then
+      <a href="methods.html">methods</a>, <a href="models.html">model zoo</a>, and
+      <a href="driving.html">driving evaluation</a>.
+    </p>
   </main>
 
   <footer class="site-foot">

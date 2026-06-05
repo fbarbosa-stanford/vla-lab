@@ -33,13 +33,12 @@
 | |\/| | _|  | | | __ | (_) | |) \__ \
 |_|  |_|___| |_| |_||_|\___/|___/|___/ </pre>
 
-    <p class="lead">A field guide to taking a pretrained vision-language-action model and
-      adapting it to a new robot or task — the choices that actually matter, and the ones I made.</p>
+    <p class="lead">Finetuning methods used in this project — which weights to update, how to shape
+      data, and how to evaluate beyond train loss.</p>
 
-    <p>If you haven't yet, play with the <a href="explorer.html">Explorer</a> first — it shows the
-      forward pass these methods are training. This page is about everything <em>around</em> that
-      forward pass: which weights to update, how to shape your data, and how to push a policy past
-      plain imitation.</p>
+    <p>The <a href="explorer.html">Explorer</a> shows the forward pass these methods train.
+      This page covers the surrounding decisions: frozen vision vs. action expert, normalization,
+      and post-training options (GRPO/DPO as reference only).</p>
 
     <h2>1 · The thing you're finetuning</h2>
     <p>A modern VLA is three parts wired in sequence. A <strong>vision encoder</strong> turns camera

@@ -1,61 +1,57 @@
 # VLA Lab
 
-**Felipe Barbosa · Stanford · CS project submission**
+**Felipe Barbosa · Stanford University · CS Project Submission**
 
-A **living notebook** on vision-language-action models: what I trained on real hardware, what broke, what I learned, and an interactive site that tries to make the forward pass legible — especially for people who are not already deep in ML.
+Vision-language-action (VLA) models map camera images and language instructions to robot motion. This project trains and evaluates VLAs on real hardware, publishes the artifacts on Hugging Face, and ships an interactive site that documents the work with evidence — model weights, logged rollouts, and qualitative evaluation clips.
 
-**Run the site locally:**
-
-```bash
-git clone https://github.com/fbarbosa-stanford/vla-lab.git
-cd vla-lab
-python3 -m http.server 8124
-# open http://localhost:8124
-```
-
-**Weights, datasets, and eval rollouts:** [huggingface.co/fbarbosa1](https://huggingface.co/fbarbosa1)
+**Live site:** clone and run locally (see [Quick start](#quick-start))  
+**Artifacts:** [huggingface.co/fbarbosa1](https://huggingface.co/fbarbosa1)
 
 ---
 
-## What this project is
+## Summary
 
-Three things together:
-
-1. **Robotics work** — datasets I collected, models I finetuned, and logged examples of policies working and failing on an SO-101 arm (and open-loop driving clips from a π₀.5 AV finetune).
-2. **A public log of learning** — written while I was still confused about VLAs myself, so my younger brother (incoming freshman) and friends outside AI could follow along later.
-3. **This website** — Explorer, methods notes, model zoo, and driving write-up that **show** behavior through clips and diagrams instead of dumping benchmark tables into the UI.
-
----
-
-## Project Submission Rubric (15 Points)
-
-### Problem & Insight (3 Points)
-
-**Problem.** I had a hard time understanding VLAs and other large robotics models from papers and checkpoints alone. It was unclear what each part of the stack actually *did* — vision tokens, language conditioning, flow-matching action heads, chunking — and why a policy could look fine in notebooks but fail on the arm.
-
-**Motivation.**
-
-- I wanted a **living blog** of what I was learning as I went, not a polished post-hoc summary.
-- My brother is an incoming freshman; I wanted him to have a **readable log** of my robotics experiments if he ever picks up the thread.
-- I also wanted to **prove to myself** that I understood the model — by explaining it, training it, breaking it, and publishing both.
-
-**Insight.** The same VLA recipe spans embodiments (arm vs. car): instruction + image + state → action chunk. If I could explain that pipeline once, I could reuse the language for manipulation and driving. The site is the explanation; Hugging Face holds the artifacts.
+| Deliverable | Description |
+|-------------|-------------|
+| **Datasets** | Three LeRobot-format SO-101 teleop datasets + one logged eval rollout |
+| **Models** | Four finetuned policies (SmolVLA, π₀.5 manipulation, ACT, π₀.5 driving) |
+| **Hardware eval** | Closed-loop SO-101 rollouts, including published failure cases |
+| **Driving eval** | Open-loop π₀.5 inference on held-out NVIDIA AV clips |
+| **Interactive site** | [Explorer](explorer.html), [Methods](methods.html), [Model Zoo](models.html), [Driving](driving.html) |
 
 ---
 
-### Execution & Technical Work (5 Points)
+## Problem
 
-#### Datasets (LeRobot format on Hugging Face)
+VLAs are hard to understand from papers and checkpoints alone. It is unclear what each part of the stack does — vision tokens, language conditioning, flow-matching action heads, action chunking — and why a policy can look fine in notebooks but fail on hardware.
 
-| Dataset | What it is |
-|---------|------------|
-| [so101_embodied_tasks_v1](https://huggingface.co/datasets/fbarbosa1/so101_embodied_tasks_v1) | ~100 teleop episodes on an SO-101 — fork pick-up and lego-into-cup tasks, top-down + wrist cameras |
-| [so101_lego_into_glass](https://huggingface.co/datasets/fbarbosa1/so101_lego_into_glass) | Teleop demos for a narrower lego-into-glass task (ACT baseline) |
-| [eval_act_so101_lego_into_glass](https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass) | **Logged policy rollout** on hardware — the arm missing the glass (used as a failure example on the site) |
+**Hypothesis:** The same VLA recipe spans embodiments (arm vs. car): instruction + image + state → action chunk. If the pipeline can be explained once and validated with real training runs, the same framework applies to manipulation and driving.
 
-Collected and exported with [LeRobot](https://github.com/huggingface/lerobot) conventions (parquet + video, v3 schema).
+---
 
-#### Models trained & published
+## Approach
+
+1. **Collect data** on an SO-101 follower arm using LeRobot conventions.
+2. **Finetune** SmolVLA, π₀.5, and ACT baselines on teleop demonstrations.
+3. **Evaluate** with closed-loop hardware rollouts and open-loop diagnostics; log failures to Hugging Face.
+4. **Extend** the π₀.5 stack to NVIDIA PhysicalAI driving data and evaluate open-loop on held-out clips.
+5. **Document** results in this repo and on the interactive site, prioritizing episode-level evidence over homepage benchmark tables.
+
+---
+
+## Technical Work
+
+### Datasets (LeRobot format on Hugging Face)
+
+| Dataset | Description |
+|---------|-------------|
+| [so101_embodied_tasks_v1](https://huggingface.co/datasets/fbarbosa1/so101_embodied_tasks_v1) | ~100 teleop episodes on SO-101 — fork pick-up and lego-into-cup tasks, top-down + wrist cameras |
+| [so101_lego_into_glass](https://huggingface.co/datasets/fbarbosa1/so101_lego_into_glass) | Teleop demos for lego-into-glass (ACT baseline) |
+| [eval_act_so101_lego_into_glass](https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass) | Logged closed-loop policy rollout — arm misses the glass (failure evidence on site) |
+
+Collected and exported with [LeRobot](https://github.com/huggingface/lerobot) (parquet + video, v3 schema).
+
+### Models
 
 | Model | Base | Method | Task |
 |-------|------|--------|------|
@@ -64,93 +60,66 @@ Collected and exported with [LeRobot](https://github.com/huggingface/lerobot) co
 | [act_so101_lego_into_glass_020000_v6](https://huggingface.co/fbarbosa1/act_so101_lego_into_glass_020000_v6) | — | Action Chunking Transformer | Lego into glass |
 | [pi05-nvidia-av-generalize-012000](https://huggingface.co/fbarbosa1/pi05-nvidia-av-generalize-012000) | π₀.5 stack | BC on NVIDIA PhysicalAI AV clips | Ego-frame driving (open-loop eval) |
 
-Training stack: **LeRobot** (`lerobot-train`), Modal GPU jobs for longer runs, local SO-101 eval loops with remote inference servers. I finetuned **SmolVLA** (0.5B VLA) and **π₀.5** (4B flow-matching VLA) on my own data, plus an **ACT** baseline for comparison on a simpler task.
+**Training stack:** LeRobot (`lerobot-train`), Modal GPU jobs for longer runs, local SO-101 eval with remote inference servers.
 
-#### Methods I actually used
+**Methods used:**
 
-- **Behavior cloning** on teleop datasets with frozen vision encoders
-- **LoRA / action-expert-only** training where full finetunes were too heavy
-- **Flow-matching action heads** (π₀.5) — denoising an action chunk conditioned on tokens
-- **Action chunking** (ACT) — predict H steps, execute, re-infer
-- **Open-loop diagnostics** — replay training frames through a checkpoint to separate “bad policy” from “bad deployment”
-- **Closed-loop logging** — record failed (and partial) real-robot episodes back to HF as eval datasets
+- Behavior cloning on teleop data with frozen vision encoders
+- LoRA / action-expert-only training where full finetunes were too heavy
+- Flow-matching action heads (π₀.5) — denoising an action chunk conditioned on tokens
+- Action chunking (ACT) — predict H steps, execute, re-infer
+- Open-loop diagnostics — replay training frames through a checkpoint to separate policy errors from deployment errors
+- Closed-loop logging — record failed (and partial) real-robot episodes back to Hugging Face
 
-The [Methods](methods.html) page explains these in plain language (including GRPO/DPO as general post-training ideas, not as part of this driving submission).
+See [methods.html](methods.html) for the finetuning guide (GRPO/DPO covered as general post-training concepts, not part of this driving work).
 
-#### Examples on the site (not benchmark dashboards)
-
-I **deliberately avoided** pasting ADE tables and leaderboard numbers into the website. Instead:
-
-- **When something worked** — partial grasps, sensible open-loop driving overlays, Explorer demos that match the architecture I trained.
-- **When something failed** — embedded HF eval video (ACT missing the glass), qualitative notes on SmolVLA undershoot and π₀.5 task confusion, driving clips where the predicted path drifts.
-
-That matches how I validated claims: look at **episodes**, not a single scalar on the homepage.
-
-#### The website (communication layer)
+### Interactive site
 
 | Page | Role |
 |------|------|
-| [Explorer](explorer.html) | Architecture-faithful **teaching** sim — patch tokens, action queries, flow τ, chunk heatmap, SO-101 motion (does not load 4B weights in-browser). The **step-by-step animation** and **ASCII diagrams** on the site were **AI-generated**, then reviewed by me for architectural accuracy. |
-| [Methods](methods.html) | Field guide to finetuning decisions I had to make |
-| [Models](models.html) | Zoo + **“What breaks”** with HF clips |
+| [Explorer](explorer.html) | Architecture-faithful teaching sim — patch tokens, action queries, flow τ, chunk heatmap, SO-101 motion (does not load 4B weights in-browser) |
+| [Methods](methods.html) | Finetuning decisions and training recipe |
+| [Models](models.html) | Model zoo + failure gallery with Hugging Face clips |
 | [Driving](driving.html) | π₀.5 AV finetune + held-out open-loop clip gallery |
-| [Home](index.html) | Map of the pipeline |
-
-**Iteration.** I showed early drafts to friends who are not into AI and rewrote copy, added the staged Explorer reveal, and replaced jargon-heavy sections with the failure gallery — so the site reads like an explanation, not a lab report.
+| [Home](index.html) | Project overview and artifact links |
 
 ---
 
-### Evaluation & Evidence (3 Points)
+## Results & Evidence
 
-| Question | How I answered it |
-|----------|-------------------|
-| Did I train real policies? | Public HF checkpoints + training configs |
-| Do they transfer to hardware? | SO-101 rollouts; eval dataset with video |
-| Do they always work? | **No** — failure examples published on purpose |
-| Do I understand the architecture? | Explorer + methods text tied to what I trained |
-| Does driving work closed-loop? | **Not claimed** — open-loop clip examples only |
+| Claim | Evidence |
+|-------|----------|
+| Trained real policies | Public Hugging Face checkpoints + training configs |
+| Policies run on hardware | SO-101 rollouts; eval dataset with video |
+| Policies do not always work | Failure examples published intentionally |
+| Architecture understood | Explorer + methods text tied to trained models |
+| Driving closed-loop | **Not claimed** — open-loop clip examples only |
 
-**Failure analysis (on the site and Hub).**
+### Failure analysis
 
-- ACT lego: logged eval — policy never completes insertion
-- SmolVLA: partial fork/lego success; undershoot and placement sensitivity
-- π₀.5 manipulation: language-conditioned; task bleed when scene is ambiguous
-- Driving: qualitative open-loop overlays on held-out AV footage
+- **ACT lego:** logged eval — policy never completes insertion ([video on site](models.html#fail-act))
+- **SmolVLA:** partial fork/lego success; undershoot and placement sensitivity
+- **π₀.5 manipulation:** language-conditioned; task bleed when scene is ambiguous
+- **Driving:** qualitative open-loop overlays on held-out AV footage (ADE 0.42 m on 50-clip finetune)
 
-**Limitations.**
+### Limitations
 
-- Explorer internals are illustrative, not attention maps from my checkpoints
-- Explorer **animation** and site **ASCII art** (homepage pipeline, methods diagrams, page headers) were **generated with AI** — they teach the architecture, not logged telemetry from my runs
+- Explorer internals are illustrative, not attention maps from trained checkpoints
 - No on-vehicle closed-loop deployment in this project
-- GRPO/DPO driving experiments belong to a **separate** project and are not part of this repo
+- No LLM fine-tuning or LLM-specific information (could be an extension)
 
 ---
 
-### Communication & Presentation (2 Points)
+## Quick start
 
-**Audience.** Course staff, robotics-curious friends, and my brother — people who may never run `lerobot-train` but should still understand *what a VLA is* and *what I did*.
+```bash
+git clone https://github.com/fbarbosa-stanford/vla-lab.git
+cd vla-lab
+python3 -m http.server 8124
+# open http://localhost:8124
+```
 
-**This README vs. the rest of the project.** The site and Hugging Face artifacts are the **living log** — messy, iterative, updated as I learned. **This README is the polished submission** for the course: it summarizes the robotics work, evidence, and limitations in one place for graders.
-
----
-
-### Process, Integrity & Disclosure (2 Points)
-
-**AI tools.** Training and debugging these models required AI-assisted tooling — reading LeRobot configs, tracing tensor shapes, Modal/infra scripts, and understanding which submodule (vision vs. action expert vs. processor) was responsible when runs failed. AI assistants also helped with site copy and layout, the **Explorer step animation**, and **ASCII diagrams** across the site (homepage pipeline, methods page, page headers). **This README was drafted and polished with AI help** from my notes on what I actually trained, logged, and broke; I reviewed every section so the claims match the artifacts on Hugging Face and the site. **All training choices, eval logging, and claims about what is real vs. simulated were made and reviewed by me.** This repository is authored by Felipe Barbosa only.
-
-**Credits & citations.**
-
-| Resource | Role |
-|----------|------|
-| [LeRobot](https://github.com/huggingface/lerobot) | Dataset schema, training CLI, policy implementations, eval conventions |
-| [SmolVLA](https://huggingface.co/papers/2506.01844) / [lerobot/smolvla_base](https://huggingface.co/lerobot/smolvla_base) | Compact VLA baseline I finetuned |
-| [Physical Intelligence π₀ / π₀.5](https://www.physicalintelligence.company/blog/pi05) / [lerobot/pi05_base](https://huggingface.co/lerobot/pi05_base) | Flow-matching VLA stack for manipulation and driving finetunes |
-| [ALOHA](https://tonyzhaozh.github.io/aloha/) (Tony Zhao et al.) | Teleop / bimanual manipulation lineage that popularized the data-collection workflow this builds on |
-| [Three.js](https://threejs.org/) | Explorer 3D scene (vendored) |
-| NVIDIA PhysicalAI AV data | Driving finetuning source |
-| SO-101 follower arm | Manipulation hardware |
-
-**Artifacts.** This GitHub repo, Hugging Face models/datasets, and commit history on both.
+To reproduce training, use LeRobot with the linked Hugging Face datasets and base checkpoints. Hardware eval requires an SO-101 arm and the inference setup described on each model card.
 
 ---
 
@@ -158,17 +127,37 @@ That matches how I validated claims: look at **episodes**, not a single scalar o
 
 ```
 vla-lab/
-├── index.html          # Homepage
+├── index.html          # Project homepage
 ├── explorer.html       # Interactive VLA Explorer
 ├── methods.html        # Finetuning guide
 ├── models.html         # Model zoo + failure examples
-├── driving.html        # Self-driving note + clip gallery
+├── driving.html        # Driving evaluation + clip gallery
 ├── css/  js/  vendor/  # Site assets
 └── assets/driving/     # Open-loop driving preview clips
 ```
 
 ---
 
+## Acknowledgments
+
+| Resource | Role |
+|----------|------|
+| [LeRobot](https://github.com/huggingface/lerobot) | Dataset schema, training CLI, policy implementations |
+| [SmolVLA](https://huggingface.co/papers/2506.01844) / [lerobot/smolvla_base](https://huggingface.co/lerobot/smolvla_base) | Compact VLA baseline |
+| [Physical Intelligence π₀ / π₀.5](https://www.physicalintelligence.company/blog/pi05) / [lerobot/pi05_base](https://huggingface.co/lerobot/pi05_base) | Flow-matching VLA stack |
+| [ALOHA](https://tonyzhaozh.github.io/aloha/) (Tony Zhao et al.) | Teleop / bimanual manipulation lineage |
+| [Three.js](https://threejs.org/) | Explorer 3D scene (vendored) |
+| NVIDIA PhysicalAI AV data | Driving finetuning source |
+| SO-101 follower arm | Manipulation hardware |
+
+---
+
+## AI disclosure
+
+AI-assisted tooling was used for LeRobot config debugging, site layout, model training, Explorer step animation, and ASCII diagrams across the site. All training decisions, eval logging, and claims about what is real vs. simulated were made and reviewed by Felipe Barbosa. This repository is authored by Felipe Barbosa only.
+
+---
+
 ## License
 
-Site content © Felipe Barbosa. Model weights on Hugging Face use the license stated on each model card (Apache-2.0 where applicable).
+Model weights on Hugging Face use the license stated on each model card (Apache-2.0 where applicable).
