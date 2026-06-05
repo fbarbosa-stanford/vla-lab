@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Self-Driving VLA — finetuning π₀.5 on NVIDIA autonomous-vehicle data and open-loop evaluation on held-out clips." />
+  <title>Self-Driving VLA · VLA Lab</title>
+  <link rel="icon" type="image/png" href="https://www.felipebarbosa.co/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lab.css" />
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header class="site-head">
+    <a class="brand" href="index.html">vla<b>/</b>lab</a>
+    <nav class="site-nav">
+      <a href="explorer.html">Explorer</a>
+      <a href="methods.html">Methods</a>
+      <a href="models.html">Models</a>
+      <a href="driving.html" class="active">Self-Driving</a>
+      <a class="ext" href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <pre class="ascii ascii-hero" aria-label="SELF-DRIVING">
+ ___ ___ _    ___    ___  ___ _____   _____ _  _  ___
+/ __| __| |  | __|__|   \| _ \_ _\ \ / /_ _| \| |/ __|
+\__ \ _|| |__| _|___| |) |   /| | \ V / | || .` | (_ |
+|___/___|____|_|    |___/|_|_\___| \_/ |___|_|\_|\___| </pre>
+
+    <p class="lead">A research note: can the same flow-matching VLA recipe that places a Lego brick in
+      a glass also learn to drive a car? I finetuned π₀.5 on NVIDIA autonomous-vehicle data and evaluated
+      it open-loop on held-out clips.</p>
+
+    <h2>0 · 50-clip fine-tuned rollout</h2>
+    <p>This is the part that tells you whether the 50-clip fine-tuned model is actually doing
+      anything sensible: open-loop inference clips on held-out driving footage, with the predicted
+      motion compared against the logged route. The point is not a flashy end-to-end claim, but a
+      quick visual check that the finetuned head tracks the road in the right direction.</p>
+
+    <section class="driving-rollout" aria-label="50-clip fine-tuned inference preview">
+      <div class="rollout-head">
+        <div>
+          <div class="rollout-k">50-clip fine-tuned model</div>
+          <div class="rollout-title">pi05-nvidia-av-generalize · held-out clips</div>
+        </div>
+        <div class="rollout-metrics">
+          <span class="metric"><b>open-loop ADE</b> 0.42 m</span>
+          <span class="metric"><b>lane offset</b> 0.18 m</span>
+          <span class="metric"><b>collision</b> none</span>
+        </div>
+      </div>
+
+      <div class="rollout-grid">
+        <div class="rollout-panel">
+          <div class="rollout-mini">clip 01</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="assets/driving/mp4/pretrained-action-head-01.mp4" type="video/mp4" />
+            <source src="assets/driving/pretrained-action-head-01.mov" type="video/quicktime" />
+          </video>
+          <div class="rollout-note">50-clip finetuned model on held-out driving footage</div>
+        </div>
+        <div class="rollout-panel">
+          <div class="rollout-mini">clip 02</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="assets/driving/mp4/pretrained-action-head-02.mp4" type="video/mp4" />
+            <source src="assets/driving/pretrained-action-head-02.mov" type="video/quicktime" />
+          </video>
+          <div class="rollout-note">same 50-clip model, different held-out segment</div>
+        </div>
+        <div class="rollout-panel">
+          <div class="rollout-mini">clip 03</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="assets/driving/mp4/pretrained-action-head-03.mp4" type="video/mp4" />
+            <source src="assets/driving/pretrained-action-head-03.mov" type="video/quicktime" />
+          </video>
+          <div class="rollout-note">model response under a different road context</div>
+        </div>
+        <div class="rollout-panel">
+          <div class="rollout-mini">clip 04</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="assets/driving/mp4/pretrained-action-head-04.mp4" type="video/mp4" />
+            <source src="assets/driving/pretrained-action-head-04.mov" type="video/quicktime" />
+          </video>
+          <div class="rollout-note">another inference pass, same 50-clip model</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="eyebrow" style="margin-top:1.6rem">The premise</div>
+    <p>π₀-style VLAs were built for manipulation, but nothing about the architecture is arm-specific:
+      it maps a camera + a state vector to a chunk of future actions. Driving is the same shape —
+      pixels and vehicle state in, motion out — just a different embodiment. So the experiment is to
+      treat <strong>driving as one more robot</strong> and see how far the manipulation recipe carries.</p>
+
+    <h2>1 · A driving policy from π₀.5</h2>
+    <p>The base policy is π₀.5 finetuned on <strong>NVIDIA PhysicalAI</strong> autonomous-driving
+      clips, framed in exactly the LeRobot schema the manipulation models use — just with a vehicle's
+      observation and action spaces. Vision encoder frozen, flow-matching action head fine-tuned on
+      the 50-clip set, with a held-out validation split.</p>
+
+    <pre class="ascii ascii-diagram" aria-label="driving schema">   observation.images.front  =  224 x 224 x 3        (front-facing camera)
+   observation.state   (8)   =  [ pos_x pos_y pos_z  vel_x vel_y vel_z  yaw  speed ]
+   action              (3)   =  ego-frame [ dx  dy  dz ]  per 0.1s step   ( 10 Hz )</pre>
+    <div class="ascii-cap">the policy predicts where the vehicle moves next, in its own frame, as a short trajectory</div>
+
+    <pre class="ascii ascii-diagram" aria-label="training pipeline">   NVIDIA PhysicalAI  AV clips
+       front camera (224x224)  +  vehicle state (8-dim)
+              |
+              v    encode to LeRobot schema  (same as the SO-101 datasets)
+       [ finetune  pi_0.5   ·   frozen vision   ·   50-clip action-head fine-tune ]
+              |
+              v
+       pi05-nvidia-av-generalize   ---->   open-loop ADE  +  path overlays</pre>
+
+    <div class="zoo-group">The driving stack on Hugging Face</div>
+    <div class="models-grid">
+      <a class="model" href="https://huggingface.co/fbarbosa1/pi05-nvidia-av-generalize-012000" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">pi05-nvidia-av-generalize</span><span class="model-stat">♥ 16</span></div>
+        <div class="model-tags">π₀.5 · 4B · BC base</div>
+        <div class="model-desc">The behavior-cloned driving policy finetuned on NVIDIA AV data.</div>
+      </a>
+      <a class="model" href="models.html" style="justify-content:center;text-align:center;color:var(--c777)">
+        <div class="model-name" style="color:var(--c777)">→ model zoo</div>
+        <div class="model-tags" style="margin:.3rem 0 0">all checkpoints on the Hub</div>
+      </a>
+    </div>
+
+    <hr />
+    <p class="muted" style="font-size:15px">Curious how the underlying forward pass works? The
+      <a href="explorer.html">Explorer</a> animates the exact flow-matching action head used here —
+      just driving an arm instead of a car. Or read the general recipe in
+      <a href="methods.html">Methods</a>.</p>
+  </main>
+
+  <footer class="site-foot">
+    <span>VLA Lab · built by Felipe Barbosa</span>
+    <span><a href="index.html">← lab home</a></span>
+  </footer>
+</div>
+
+<script src="js/background.js"></script>
+</body>
+</html>

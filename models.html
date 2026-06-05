@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Model Zoo — manipulation and self-driving VLAs trained by Felipe Barbosa." />
+  <title>Model Zoo · VLA Lab</title>
+  <link rel="icon" type="image/png" href="https://www.felipebarbosa.co/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lab.css" />
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header class="site-head">
+    <a class="brand" href="index.html">vla<b>/</b>lab</a>
+    <nav class="site-nav">
+      <a href="explorer.html">Explorer</a>
+      <a href="methods.html">Methods</a>
+      <a href="models.html" class="active">Models</a>
+      <a href="driving.html">Self-Driving</a>
+      <a class="ext" href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <pre class="ascii ascii-hero" aria-label="MODEL ZOO">
+ __  __  ___  ___  ___ _      _______   ___
+|  \/  |/ _ \|   \| __| |    |_  / _ \ / _ \
+| |\/| | (_) | |) | _|| |__   / / (_) | (_) |
+|_|  |_|\___/|___/|___|____| /___\___/ \___/ </pre>
+
+    <p class="lead">Every model here has open weights on
+      <a href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener">Hugging Face</a>.
+      Two families: manipulation policies on the SO-101 arm, and a π₀.5 stack for driving.</p>
+
+    <div class="zoo-group">Manipulation · SO-101 arm</div>
+    <div class="models-grid">
+      <a class="model" href="https://huggingface.co/fbarbosa1/smolvla_so101_embodied_v1" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">smolvla_so101_embodied_v1</span><span class="model-stat">♥ 89</span></div>
+        <div class="model-tags">SmolVLA · 0.5B · VLA</div>
+        <div class="model-desc">A lightweight 0.5B VLA finetuned on the SO-101 embodied-tasks dataset — small enough to fine-tune and run without a large GPU. Closed-loop: partial on both fork and lego tasks.</div>
+        <span class="zoo-failure-link" onclick="event.stopPropagation(); event.preventDefault(); document.getElementById('fail-smolvla').scrollIntoView({behavior:'smooth'})">failure evidence ↓</span>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1/pi05_so101_embodied_v1" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">pi05_so101_embodied_v1</span><span class="model-stat">♥ 70</span></div>
+        <div class="model-tags">π₀.5 · 4B · flow-matching VLA</div>
+        <div class="model-desc">π₀.5 with its flow-matching action expert, finetuned on SO-101 embodied tasks — larger and more capable than the SmolVLA variant. Closed-loop: task confusion when both objects are visible.</div>
+        <span class="zoo-failure-link" onclick="event.stopPropagation(); event.preventDefault(); document.getElementById('fail-pi05-manip').scrollIntoView({behavior:'smooth'})">failure evidence ↓</span>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1/act_so101_lego_into_glass_020000_v6" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">act_so101_lego_into_glass</span><span class="model-stat">v1–v6</span></div>
+        <div class="model-tags">ACT · action-chunking transformer</div>
+        <div class="model-desc">An Action Chunking Transformer trained to drop a Lego piece into a glass with the SO-101, iterated across six versions on teleoperated demos. Real-robot eval misses the glass — see Hub rollout below.</div>
+        <span class="zoo-failure-link" onclick="event.stopPropagation(); event.preventDefault(); document.getElementById('fail-act').scrollIntoView({behavior:'smooth'})">HF eval video ↓</span>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener" style="justify-content:center;text-align:center;color:var(--c777)">
+        <div class="model-name" style="color:var(--c777)">→ profile</div>
+        <div class="model-tags" style="margin:.3rem 0 0">all checkpoints &amp; versions</div>
+      </a>
+    </div>
+
+    <div class="zoo-group">Driving · π₀.5 stack</div>
+    <div class="models-grid">
+      <a class="model" href="https://huggingface.co/fbarbosa1/pi05-nvidia-av-generalize-012000" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">pi05-nvidia-av-generalize-012000</span><span class="model-stat">♥ 16</span></div>
+        <div class="model-tags">π₀.5 · 4B · behavior cloning</div>
+        <div class="model-desc">π₀.5 finetuned on NVIDIA PhysicalAI driving clips (generalize profile, step 12k). Maps a front camera + vehicle state to ego-frame motion.</div>
+      </a>
+      <a class="model" href="driving.html" style="justify-content:center;text-align:center;color:var(--c777)">
+        <div class="model-name" style="color:var(--c777)">→ how it works</div>
+        <div class="model-tags" style="margin:.3rem 0 0">the self-driving write-up</div>
+      </a>
+    </div>
+
+    <div class="zoo-group">What breaks · Hugging Face evidence</div>
+    <p class="lead" style="font-size:16px;margin-top:0.5rem">Open weights are not the same as reliable closed-loop behavior. Where I logged real-robot rollouts or held-out metrics on the Hub, they are here — including policies that <em>underperform</em> the baseline.</p>
+
+    <section class="driving-rollout" id="fail-act" aria-label="ACT lego real-robot eval on Hugging Face">
+      <div class="rollout-head">
+        <div>
+          <div class="rollout-k">Manipulation · ACT</div>
+          <div class="rollout-title">act_so101_lego_into_glass · closed-loop eval</div>
+        </div>
+        <div class="rollout-metrics">
+          <span class="metric bad"><b>outcome</b> misses glass</span>
+          <span class="metric"><b>HF dataset</b> eval_act_so101_lego_into_glass</span>
+        </div>
+      </div>
+      <div class="rollout-grid">
+        <div class="rollout-panel">
+          <div class="rollout-mini">top-down camera</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass/resolve/main/videos/observation.images.top_down/chunk-000/file-000.mp4" type="video/mp4" />
+          </video>
+          <div class="rollout-note">logged SO-101 rollout — policy never completes the insertion</div>
+        </div>
+        <div class="rollout-panel">
+          <div class="rollout-mini">wrist camera</div>
+          <video class="rollout-video" controls muted loop playsinline preload="metadata">
+            <source src="https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass/resolve/main/videos/observation.images.wrist/chunk-000/file-000.mp4" type="video/mp4" />
+          </video>
+          <div class="rollout-note">same episode, wrist view — weak visual grounding on small data</div>
+        </div>
+        <div class="rollout-panel">
+          <div class="rollout-mini">hub link</div>
+          <p class="failure-text">Full episode (1.7k frames, task: <em>Put the Lego figure inside the glass</em>) lives in the LeRobot eval dataset on Hugging Face. Open-loop action error is reasonable; on hardware the arm drifts and misses.</p>
+          <a class="zoo-failure-link" href="https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass" target="_blank" rel="noopener">huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass ↗</a>
+          <a class="zoo-failure-link" href="https://huggingface.co/spaces/lerobot/visualize_dataset?path=fbarbosa1/eval_act_so101_lego_into_glass" target="_blank" rel="noopener" style="margin-left:0.75rem">dataset viewer ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="driving-rollout" id="fail-smolvla" aria-label="SmolVLA closed-loop failure modes">
+      <div class="rollout-head">
+        <div>
+          <div class="rollout-k">Manipulation · SmolVLA</div>
+          <div class="rollout-title">smolvla_so101_embodied_v1 · real-robot rollouts</div>
+        </div>
+        <div class="rollout-metrics">
+          <span class="metric bad"><b>fork</b> partial</span>
+          <span class="metric bad"><b>lego</b> partial</span>
+          <span class="metric"><b>open-loop</b> beats baselines on train frames</span>
+        </div>
+      </div>
+      <p class="failure-text">Open-loop replay on frames from <a href="https://huggingface.co/datasets/fbarbosa1/so101_embodied_tasks_v1" target="_blank" rel="noopener">so101_embodied_tasks_v1</a> shows the checkpoint on the Hub is not underfit — predicted actions beat no-op and mean-action baselines. On the physical SO-101 the policy still undershoots grasps and is sensitive to object displacement.</p>
+      <p class="failure-text"><strong>Main failure mode:</strong> undershoot on reach; small shifts in lego/fork position break the motion. Weights at <a href="https://huggingface.co/fbarbosa1/smolvla_so101_embodied_v1" target="_blank" rel="noopener">fbarbosa1/smolvla_so101_embodied_v1</a>.</p>
+    </section>
+
+    <section class="driving-rollout" id="fail-pi05-manip" aria-label="Pi05 manipulation closed-loop failure modes">
+      <div class="rollout-head">
+        <div>
+          <div class="rollout-k">Manipulation · π₀.5</div>
+          <div class="rollout-title">pi05_so101_embodied_v1 · real-robot rollouts</div>
+        </div>
+        <div class="rollout-metrics">
+          <span class="metric bad"><b>fork</b> partial–success</span>
+          <span class="metric bad"><b>lego</b> partial–success</span>
+          <span class="metric"><b>open-loop</b> learned on train frames</span>
+        </div>
+      </div>
+      <p class="failure-text">Like SmolVLA, open-loop diagnostics on the Hugging Face checkpoint look healthy — the gap is closed-loop deployment. π₀.5 is language-conditioned: a wrong or ambiguous prompt (or both tasks' objects left on the table) produces task confusion and approach from the wrong direction.</p>
+      <p class="failure-text"><strong>Main failure mode:</strong> multi-task bleed when fork and lego/cup cues coexist; YOLO-augmented prompts help until a detector miss sends bad spatial text. Weights at <a href="https://huggingface.co/fbarbosa1/pi05_so101_embodied_v1" target="_blank" rel="noopener">fbarbosa1/pi05_so101_embodied_v1</a>, training data at <a href="https://huggingface.co/datasets/fbarbosa1/so101_embodied_tasks_v1" target="_blank" rel="noopener">so101_embodied_tasks_v1</a>.</p>
+    </section>
+
+    <div class="zoo-group">Datasets</div>
+    <div class="models-grid">
+      <a class="model" href="https://huggingface.co/datasets/fbarbosa1/so101_embodied_tasks_v1" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">so101_embodied_tasks_v1</span><span class="model-stat">↓ 181</span></div>
+        <div class="model-tags">LeRobot · 32.8k frames</div>
+        <div class="model-desc">SO-101 embodied manipulation demonstrations — the training set for the SmolVLA and π₀.5 manipulation policies.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/datasets/fbarbosa1/so101_lego_into_glass" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">so101_lego_into_glass</span><span class="model-stat">↓ 87</span></div>
+        <div class="model-tags">LeRobot · 19.3k frames</div>
+        <div class="model-desc">Teleoperated demonstrations of the Lego-into-glass task used to train the ACT policies.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/datasets/fbarbosa1/eval_act_so101_lego_into_glass" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">eval_act_so101_lego_into_glass</span><span class="model-stat">↓ 53</span></div>
+        <div class="model-tags">LeRobot · 1.73k frames</div>
+        <div class="model-desc">Held-out evaluation episodes for measuring the ACT lego-into-glass policy.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener" style="justify-content:center;text-align:center;color:var(--c777)">
+        <div class="model-name" style="color:var(--c777)">huggingface.co/fbarbosa1</div>
+        <div class="model-tags" style="margin:.3rem 0 0">↗ full profile</div>
+      </a>
+    </div>
+
+    <p class="muted" style="font-size:14px;margin-top:2rem">
+      Likes and download counts are point-in-time snapshots from Hugging Face. Want to see how these
+      policies actually run? Open the <a href="explorer.html">Explorer</a> for the manipulation side,
+      or the <a href="driving.html">self-driving note</a> for the π₀.5 driving stack.
+    </p>
+  </main>
+
+  <footer class="site-foot">
+    <span>VLA Lab · built by Felipe Barbosa</span>
+    <span><a href="index.html">← lab home</a></span>
+  </footer>
+</div>
+
+<script src="js/background.js"></script>
+</body>
+</html>

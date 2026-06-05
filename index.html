@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="VLA Lab — an interactive notebook on vision-language-action models, by Felipe Barbosa." />
+  <title>VLA Lab — Felipe Barbosa</title>
+  <link rel="icon" type="image/png" href="https://www.felipebarbosa.co/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lab.css" />
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header class="site-head">
+    <a class="brand" href="index.html">vla<b>/</b>lab</a>
+    <nav class="site-nav">
+      <a href="explorer.html">Explorer</a>
+      <a href="methods.html">Methods</a>
+      <a href="models.html">Models</a>
+      <a href="driving.html">Self-Driving</a>
+      <a class="ext" href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="eyebrow">Felipe Barbosa · Stanford CS · robotics</div>
+
+    <pre class="ascii ascii-hero" aria-label="VLA LAB">
+__     ___        _      _        _    ____
+\ \   / / |      / \    | |      / \  | __ )
+ \ \ / /| |     / _ \   | |     / _ \ |  _ \
+  \ V / | |___ / ___ \  | |___ / ___ \| |_) |
+   \_/  |_____/_/   \_\ |_____/_/   \_\____/ </pre>
+
+    <p class="lead">An interactive notebook on vision-language-action models — the policies
+      that map a camera image and a language instruction straight to robot motion.</p>
+
+    <p>It is two things at once: a <strong>teaching tool</strong> that opens up how these models
+      think, and a <strong>record of the VLAs I've trained</strong> — manipulation policies on the
+      SO-101 arm, and a π₀.5 driving stack fine-tuned on NVIDIA autonomous-vehicle data. Everything
+      below is interactive or links to real weights.</p>
+
+    <pre class="ascii ascii-diagram" aria-label="VLA pipeline">  ┌─ instruction ──────────────────┐  ┌─ camera ──────────────┐  ┌─ state ──────┐
+  │ "pick up the red cube"         │  │ 8×8 patch tokens      │  │ 6-DoF + grip │
+  └────────────────────────────────┘  └───────────────────────┘  └──────────────┘
+                                          token stream  ↓
+  ┌──────────────────────────────────────────────────────────────────────────────┐
+  │  TRANSFORMER BACKBONE                                                        │
+  │  cross-attention: instruction × patches × state  →  action-query tokens     │
+  └──────────────────────────────────────────────────────────────────────────────┘
+                                       conditioned denoising  ↓
+  ┌──────────────────────────────────────────────────────────────────────────────┐
+  │  FLOW-MATCHING ACTION HEAD                                                   │
+  │  N(0,I)  ~~>  integrate  dX/dτ = v(X,τ)  ~~>  action chunk  a(t .. t+H)    │
+  └──────────────────────────────────────────────────────────────────────────────┘
+                                        predicted action chunk  ↓
+                              ┌──────────────────────────────────┐
+                              │  SO-101  ·  6-DoF + gripper      │
+                              └──────────────────────────────────┘</pre>
+    <div class="ascii-cap">the path every exhibit in this lab follows — perception → backbone → action head → motion</div>
+
+    <div class="section-eyebrow">Exhibits</div>
+    <div class="exhibits">
+      <a class="exhibit" href="explorer.html">
+        <div class="exhibit-top"><span>01 · how VLAs work</span><span>interactive · three.js</span></div>
+        <div class="exhibit-title">The VLA Explorer</div>
+        <div class="exhibit-q">What actually happens between a prompt and a robot action?</div>
+        <div class="exhibit-meta"><span>SO-101 sim · live flow-matching</span><span class="arrow">→</span></div>
+      </a>
+      <a class="exhibit" href="methods.html">
+        <div class="exhibit-top"><span>02 · finetuning</span><span>field guide</span></div>
+        <div class="exhibit-title">Finetuning Methods</div>
+        <div class="exhibit-q">How do you adapt a pretrained VLA to a new robot or task?</div>
+        <div class="exhibit-meta"><span>LoRA · action expert · GRPO / DPO</span><span class="arrow">→</span></div>
+      </a>
+      <a class="exhibit" href="models.html">
+        <div class="exhibit-top"><span>03 · model zoo</span><span>7 models · 3 datasets</span></div>
+        <div class="exhibit-title">Model Zoo</div>
+        <div class="exhibit-q">The manipulation and driving policies I've trained — weights on Hugging Face.</div>
+        <div class="exhibit-meta"><span>ACT · SmolVLA · π₀.5</span><span class="arrow">→</span></div>
+      </a>
+      <a class="exhibit" href="driving.html">
+        <div class="exhibit-top"><span>04 · research note</span><span>self-driving</span></div>
+        <div class="exhibit-title">Self-Driving VLA</div>
+        <div class="exhibit-q">Can a manipulation-style flow-matching VLA learn to drive a car?</div>
+        <div class="exhibit-meta"><span>π₀.5 · NVIDIA AV · open-loop</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+
+    <div class="section-eyebrow">Featured models</div>
+    <div class="models-grid">
+      <a class="model" href="https://huggingface.co/fbarbosa1/smolvla_so101_embodied_v1" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">smolvla_so101_embodied_v1</span><span class="model-stat">♥ 89</span></div>
+        <div class="model-tags">SmolVLA · 0.5B · manipulation</div>
+        <div class="model-desc">A compact VLA finetuned on SO-101 demonstrations — small enough to run on modest hardware.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1/pi05_so101_embodied_v1" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">pi05_so101_embodied_v1</span><span class="model-stat">♥ 70</span></div>
+        <div class="model-tags">π₀.5 · 4B · manipulation</div>
+        <div class="model-desc">π₀.5's flow-matching action expert, finetuned on the SO-101 embodied-tasks dataset.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1/pi05-nvidia-av-generalize-012000" target="_blank" rel="noopener">
+        <div class="model-head"><span class="model-name">pi05-nvidia-av-generalize</span><span class="model-stat">♥ 16</span></div>
+        <div class="model-tags">π₀.5 · 4B · driving</div>
+        <div class="model-desc">π₀.5 finetuned on NVIDIA PhysicalAI driving data — the base for the self-driving work.</div>
+      </a>
+      <a class="model" href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener" style="justify-content:center;align-items:center;text-align:center;">
+        <div class="model-name" style="color:var(--c777)">→ all 7 models &amp; 3 datasets</div>
+        <div class="model-tags" style="margin:.3rem 0 0">huggingface.co/fbarbosa1</div>
+      </a>
+    </div>
+
+    <div class="section-eyebrow">About this lab</div>
+    <p class="muted" style="font-size:16px">
+      I'm a CS undergrad at Stanford on the AI track, mostly thinking about reinforcement learning,
+      agents, and robotics — and within robotics, about vision-language-action models and embodied
+      reasoning. This lab collects that work in one place. Start with the
+      <a href="explorer.html">Explorer</a> to build intuition, then dig into the
+      <a href="methods.html">methods</a> and the <a href="driving.html">driving research</a>.
+    </p>
+
+    <ul class="links" style="margin-top:1.5rem">
+      <li><span class="label">Site</span> <a href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co</a></li>
+      <li><span class="label">Models</span> <a href="https://huggingface.co/fbarbosa1" target="_blank" rel="noopener">huggingface.co/fbarbosa1</a></li>
+      <li><span class="label">GitHub</span> <a href="https://github.com/fbarbosa-stanford" target="_blank" rel="noopener">@fbarbosa-stanford</a></li>
+      <li><span class="label">X</span> <a href="https://x.com/felipexbarbosa" target="_blank" rel="noopener">@felipexbarbosa</a></li>
+    </ul>
+  </main>
+
+  <footer class="site-foot">
+    <span>VLA Lab · built by Felipe Barbosa</span>
+    <span><a href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">← felipebarbosa.co</a></span>
+  </footer>
+</div>
+
+<script src="js/background.js"></script>
+</body>
+</html>

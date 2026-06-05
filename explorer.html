@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The VLA Explorer · VLA Lab</title>
+  <link rel="icon" type="image/png" href="https://www.felipebarbosa.co/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/explorer.css" />
+  <script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+</head>
+<body class="explorer-page">
+<canvas id="bg" aria-hidden="true"></canvas>
+  <div class="explorer-shell">
+    <header class="site-head">
+      <a class="brand" href="index.html">vla<b>/</b>lab</a>
+      <nav class="site-nav">
+        <a href="explorer.html" class="active">Explorer</a>
+        <a href="methods.html">Methods</a>
+        <a href="models.html">Models</a>
+        <a href="driving.html">Self-Driving</a>
+        <a class="ext" href="https://www.felipebarbosa.co/" target="_blank" rel="noopener">felipebarbosa.co ↗</a>
+      </nav>
+    </header>
+
+    <header class="explorer-intro">
+      <div class="explorer-intro-text">
+        <h1>The VLA Explorer</h1>
+        <p>Watch a vision-language-action model turn a prompt into robot motion.</p>
+      </div>
+
+      <div class="explorer-prompt">
+        <label class="c-mini-label" for="prompt">instruction</label>
+        <div class="prompt-input-row">
+          <input id="prompt" class="c-input" type="text" autocomplete="off" spellcheck="false"
+                 value="pick up the red cube" />
+          <button id="run" class="c-btn c-btn--primary run-btn" type="button">Run ▶</button>
+        </div>
+        <div id="presets" class="presets"></div>
+      </div>
+    </header>
+
+    <main class="explorer-layout">
+      <section class="panel scene-panel" data-stage="scene">
+        <div class="panel-head">
+          <span class="panel-title">SO-101 · simulation</span>
+          <span class="panel-sub">drag to orbit · scroll to zoom</span>
+        </div>
+        <div class="scene-wrap">
+          <canvas id="scene-canvas"></canvas>
+          <div id="scene-badge" class="scene-badge">idle</div>
+        </div>
+      </section>
+
+      <div class="explorer-model-col">
+        <section class="panel" data-stage="perception">
+          <div class="panel-head">
+            <span class="panel-title"><span class="step-num">1</span> Perception &amp; tokenization</span>
+            <span class="panel-sub">image → patch tokens · text → language tokens</span>
+          </div>
+          <div class="perception-grid">
+            <div class="cam-wrap">
+              <div class="mini-label">camera (model input)</div>
+              <div class="cam-stack">
+                <canvas id="camera-canvas" width="320" height="240"></canvas>
+                <canvas id="patch-overlay" width="320" height="240"></canvas>
+              </div>
+              <div class="mini-cap">8×8 patch tokens · brightness = relevance to the instruction</div>
+            </div>
+            <div class="tokens-wrap">
+              <div class="mini-label">language tokens</div>
+              <div id="lang-tokens" class="lang-tokens"></div>
+              <div class="mini-cap">bar height = how much each token drives the action</div>
+              <div class="state-token">
+                <div class="mini-label">+ proprioception</div>
+                <div id="state-token" class="chip c-chip chip-state">state·6dof</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-stage="transformer">
+          <div class="panel-head">
+            <span class="panel-title"><span class="step-num">2</span> Transformer backbone</span>
+            <span class="panel-sub">action queries attend across the token stream</span>
+          </div>
+          <div class="transformer-grid">
+            <div class="attn-wrap">
+              <div class="mini-label">attention · action query ▸ context</div>
+              <canvas id="attn-canvas" width="520" height="150"></canvas>
+            </div>
+            <div class="layers-wrap">
+              <div class="mini-label">layer activations</div>
+              <div id="layers" class="layers"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-stage="flow">
+          <div class="panel-head">
+            <span class="panel-title"><span class="step-num">3</span> Flow-matching action head</span>
+            <span class="panel-sub">integrate noise → action chunk over τ</span>
+          </div>
+          <div class="flow-grid">
+            <div class="flow-plot-wrap">
+              <canvas id="flow-canvas" width="280" height="220"></canvas>
+              <div class="mini-cap">~30 noise samples denoising in action space (2-D projection)</div>
+            </div>
+            <div class="chunk-wrap">
+              <div class="mini-label">predicted action chunk</div>
+              <canvas id="chunk-canvas" width="220" height="180"></canvas>
+              <div class="mini-cap">8 timesteps × 6 joints</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="explorer-controls">
+      <div class="tau-control">
+        <span class="ctrl-label">flow time τ</span>
+        <input id="tau" type="range" min="0" max="1" step="0.001" value="1" />
+        <span id="tau-val" class="ctrl-val">1.00</span>
+      </div>
+      <div class="ctrl-buttons">
+        <button id="play-flow" class="c-btn ghost-btn" type="button">↻ Replay denoising</button>
+        <button id="execute" class="c-btn ghost-btn" type="button">▶ Execute on arm</button>
+      </div>
+      <div class="legend">
+        <span class="dot dot-noise"></span>noise (τ=0)
+        <span class="dot dot-action"></span>action (τ=1)
+        <span class="dot dot-target"></span>target
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/background.js"></script>
+</body>
+</html>

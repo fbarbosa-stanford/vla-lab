@@ -1,0 +1,47 @@
+/* VLA Lab — design tokens (aligned with felipebarbosa.co) */
+:root {
+  --bg: #050505;
+  --text: #999999;
+  --bright: #e0e0e0;
+  --ddd: #dddddd;
+  --bbb: #bbbbbb;
+  --c777: #777777;
+  --c555: #555555;
+  --c444: #444444;
+  --c333: #333333;
+  --c2a: #2a2a2a;
+  --line: #151515;
+  --link: #cccccc;
+  --link-h: #ffffff;
+
+  --serif: 'Source Serif 4', Georgia, serif;
+  --display: 'Instrument Serif', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --content: 760px;
+  --radius: 3px;
+  --radius-lg: 6px;
+
+  --surface: rgba(8, 8, 10, 0.62);
+  --surface-hover: rgba(20, 20, 24, 0.66);
+  --surface-inset: rgba(7, 7, 8, 0.86);
+
+  --accent-vision: #6f8faf;
+  --accent-language: #a89464;
+  --accent-state: #6f9b88;
+  --accent-backbone: #8f85ad;
+  --accent-activation: #ad7f8c;
+  --accent-flow: #6f9faf;
+  --accent-action: #b6aa70;
+
+  /* Explorer viz — muted, on-brand (not neon UI chrome) */
+  --viz-a: #bbbbbb;
+  --viz-b: #999999;
+  --viz-c: #777777;
+  --viz-hot: #e0e0e0;
+  --viz-warm: #cccccc;
+  --viz-good: #8c8c8c;
+  --viz-noise: #555555;
+  --viz-accent: #dddddd;
+  --viz-accent-2: #999999;
+}
